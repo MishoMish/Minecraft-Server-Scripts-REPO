@@ -43,11 +43,11 @@ is_server_running() {
 
 # Wait for server to fully start
 wait_for_server_start() {
-    local timeout=180  # 3 minutes timeout (increased from 2 minutes)
+    local timeout=300  # 5 minutes timeout for heavily modded servers
     local count=0
     
     log_message "$SERVER_LOG" "Waiting for server to start..."
-    echo "Waiting for server to start (this may take a few minutes)..."
+    echo "Waiting for server to start (this may take several minutes for modded servers)..."
     
     # First, wait for screen session to exist
     while [ $count -lt 30 ]; do
@@ -72,9 +72,9 @@ wait_for_server_start() {
         if pgrep -f "$JAR_NAME" > /dev/null; then
             log_message "$SERVER_LOG" "Java process detected"
             
-            # Give server additional time to fully initialize
+            # Give server additional time to fully initialize (modded servers need more time)
             echo "Server process started, waiting for full initialization..."
-            sleep 10
+            sleep 15
             
             # Check if server is still running (not crashed)
             if pgrep -f "$JAR_NAME" > /dev/null; then
@@ -87,17 +87,20 @@ wait_for_server_start() {
             fi
         fi
         
-        # Show progress every 10 seconds
-        if [ $((count % 10)) -eq 0 ] && [ $count -gt 0 ]; then
-            echo "Still waiting for server startup... ($count/$timeout seconds)"
+        # Show progress every 15 seconds for longer waits
+        if [ $((count % 15)) -eq 0 ] && [ $count -gt 0 ]; then
+            local minutes=$((count / 60))
+            local seconds=$((count % 60))
+            echo "Still waiting for server startup... (${minutes}m ${seconds}s / 5m timeout)"
         fi
         
         sleep 1
         ((count++))
     done
     
-    log_message "$SERVER_LOG" "Server start timeout reached"
-    echo "Server startup timeout reached!"
+    log_message "$SERVER_LOG" "Server start timeout reached after 5 minutes"
+    echo "Server startup timeout reached! (5 minutes)"
+    echo "Server may still be loading - check 'screen -r $SERVER_SCREEN' manually"
     return 1
 }
 
