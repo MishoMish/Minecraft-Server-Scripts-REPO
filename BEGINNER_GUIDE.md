@@ -64,10 +64,49 @@ WARN_TIMES=(600 300 60 30 10)  # 10min, 5min, 1min, 30sec, 10sec warnings
 ```
 
 ### Step 3: Make Container Auto-Start This System
-Add this line to your LXC container's startup:
+
+**Recommended Method - Systemd Service (Better!):**
+
+1. Create the service file:
+```bash
+sudo nano /etc/systemd/system/minecraft-server.service
+```
+
+2. Copy this content into the file:
+```ini
+[Unit]
+Description=Minecraft Server Management Platform
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+RemainAfterExit=yes
+User=root
+WorkingDirectory=/root/scripts
+ExecStart=/root/scripts/start-with-management.sh --daemon
+ExecStop=/root/scripts/server-manager.sh stop
+RestartSec=30
+Restart=on-failure
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target
+```
+
+3. Enable and start the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable minecraft-server.service
+sudo systemctl start minecraft-server.service
+```
+
+**Alternative Method - rc.local (Simpler but less reliable):**
 ```bash
 echo "/root/scripts/start-with-management.sh" >> /etc/rc.local
 ```
+
+💡 **See [SYSTEMD_SETUP.md](SYSTEMD_SETUP.md) for detailed systemd instructions**
 
 ### Step 4: Start It The First Time
 ```bash
@@ -81,10 +120,43 @@ cd /root/scripts
 
 ### Check If Everything Is Working
 ```bash
+# Using the management system
 cd /root/scripts
 ./server-manager.sh status
+
+# Using systemd (if you set it up)
+sudo systemctl status minecraft-server
 ```
 **What this shows:** Server status, how much RAM it's using, if auto-restart is running, etc.
+
+### Restart Everything
+```bash
+# Restart just the game server
+cd /root/scripts
+./server-manager.sh restart
+
+# Restart the entire service (if using systemd)
+sudo systemctl restart minecraft-server
+```
+
+### Emergency Stop
+```bash
+# Stop the management system
+cd /root/scripts
+./server-manager.sh stop
+
+# Stop the systemd service (if using systemd)
+sudo systemctl stop minecraft-server
+```
+
+### View System Logs (if using systemd)
+```bash
+# Live service logs
+sudo journalctl -u minecraft-server -f
+
+# Recent service logs
+sudo journalctl -u minecraft-server -n 50
+```
 
 ### View The Server Console (See Chat, Commands)
 ```bash

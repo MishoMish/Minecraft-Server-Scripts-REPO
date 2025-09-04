@@ -2,6 +2,7 @@
 
 - **🎮 [BEGINNER_GUIDE.md](BEGINNER_GUIDE.md)** - **Start here!** Complete guide for non-technical users
 - **🔄 [STARTUP_PROCESS.md](STARTUP_PROCESS.md)** - Detailed explanation of what happens when container starts
+- **🔧 [SYSTEMD_SETUP.md](SYSTEMD_SETUP.md)** - **Recommended!** How to set up systemd service (better than rc.local)
 - **⚙️ [CONFIG_REFERENCE.md](CONFIG_REFERENCE.md)** - Quick reference for all configuration options
 - **📖 [README.md](README.md)** - This file (technical overview)ft Server Management Platform
 
@@ -22,7 +23,8 @@ A comprehensive, modular Minecraft server management system designed for Proxmox
 1. Copy scripts to `/root/scripts/` in your LXC container
 2. Copy Minecraft server files to `/root/SERVER/`
 3. Edit `/root/scripts/config.sh` with your settings
-4. Run `/root/scripts/start-with-management.sh` on container startup
+4. **Recommended:** Set up systemd service (see [SYSTEMD_SETUP.md](SYSTEMD_SETUP.md))
+   - Or use `/root/scripts/start-with-management.sh` on container startup
 5. Use `/root/scripts/server-manager.sh status` to check everything
 
 ## 🎯 What This System Does
