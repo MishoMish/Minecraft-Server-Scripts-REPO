@@ -43,28 +43,61 @@ is_server_running() {
 
 # Wait for server to fully start
 wait_for_server_start() {
-    local timeout=120  # 2 minutes timeout
+    local timeout=180  # 3 minutes timeout (increased from 2 minutes)
     local count=0
     
     log_message "$SERVER_LOG" "Waiting for server to start..."
+    echo "Waiting for server to start (this may take a few minutes)..."
     
-    while [ $count -lt $timeout ]; do
-        if is_server_running; then
-            # Check if server has finished loading by looking for "Done" message
-            if screen -S "$SERVER_SCREEN" -X hardcopy /tmp/mc_screen_dump.txt 2>/dev/null; then
-                if grep -q "Done\|Server started" /tmp/mc_screen_dump.txt 2>/dev/null; then
-                    rm -f /tmp/mc_screen_dump.txt
-                    log_message "$SERVER_LOG" "Server started successfully"
-                    return 0
-                fi
-            fi
+    # First, wait for screen session to exist
+    while [ $count -lt 30 ]; do
+        if screen_exists "$SERVER_SCREEN"; then
+            log_message "$SERVER_LOG" "Screen session created"
+            break
         fi
         sleep 1
         ((count++))
     done
     
-    rm -f /tmp/mc_screen_dump.txt
+    if [ $count -ge 30 ]; then
+        log_message "$SERVER_LOG" "Screen session creation timeout"
+        return 1
+    fi
+    
+    # Reset counter for server startup check
+    count=0
+    
+    # Wait for Java process to start
+    while [ $count -lt $timeout ]; do
+        if pgrep -f "$JAR_NAME" > /dev/null; then
+            log_message "$SERVER_LOG" "Java process detected"
+            
+            # Give server additional time to fully initialize
+            echo "Server process started, waiting for full initialization..."
+            sleep 10
+            
+            # Check if server is still running (not crashed)
+            if pgrep -f "$JAR_NAME" > /dev/null; then
+                log_message "$SERVER_LOG" "Server started successfully"
+                echo "Server started successfully!"
+                return 0
+            else
+                log_message "$SERVER_LOG" "Server process crashed during startup"
+                return 1
+            fi
+        fi
+        
+        # Show progress every 10 seconds
+        if [ $((count % 10)) -eq 0 ] && [ $count -gt 0 ]; then
+            echo "Still waiting for server startup... ($count/$timeout seconds)"
+        fi
+        
+        sleep 1
+        ((count++))
+    done
+    
     log_message "$SERVER_LOG" "Server start timeout reached"
+    echo "Server startup timeout reached!"
     return 1
 }
 
