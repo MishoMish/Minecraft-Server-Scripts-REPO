@@ -110,16 +110,29 @@ if "$SCRIPT_DIR/server-manager.sh" start; then
         echo "Running in daemon mode for systemd..."
         log_message "$MANAGER_LOG" "Running in daemon mode"
         
-        # Create a simple monitoring loop to keep service "active"
-        while true; do
-            # Check if at least the server is still running
-            if ! screen_exists "$SERVER_SCREEN"; then
-                echo "Server screen session lost - service should restart"
-                log_message "$MANAGER_LOG" "Server screen session lost"
-                cleanup_and_exit 1
-            fi
-            sleep 60  # Check every minute
-        done
+        # Wait a bit for everything to settle
+        sleep 10
+        
+        # Check if server startup was successful
+        if pgrep -f "$JAR_NAME" > /dev/null; then
+            echo "Server is running successfully - entering monitoring mode"
+            log_message "$MANAGER_LOG" "Server confirmed running - daemon mode active"
+            
+            # Create a simple monitoring loop to keep service "active"
+            while true; do
+                # Check if Java process is still running (more reliable than screen check)
+                if ! pgrep -f "$JAR_NAME" > /dev/null; then
+                    echo "Server Java process stopped - service should restart"
+                    log_message "$MANAGER_LOG" "Server Java process stopped"
+                    cleanup_and_exit 1
+                fi
+                sleep 60  # Check every minute
+            done
+        else
+            echo "Server failed to start - exiting"
+            log_message "$MANAGER_LOG" "Server failed to start in daemon mode"
+            cleanup_and_exit 1
+        fi
     fi
     
 else

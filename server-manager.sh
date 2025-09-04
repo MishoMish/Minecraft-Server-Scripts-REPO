@@ -179,9 +179,16 @@ start_all() {
     
     local success=0
     
-    # Start server first
-    start_component "Minecraft Server" "$SERVER_SCREEN" "$SCRIPT_DIR/server-controller.sh" "start"
-    [ $? -eq 0 ] && ((success++))
+    # Start server first - call server-controller directly (it creates its own screen)
+    echo "Starting Minecraft Server..."
+    if "$SCRIPT_DIR/server-controller.sh" start; then
+        echo "Minecraft Server started successfully"
+        log_message "$MANAGER_LOG" "Minecraft Server started"
+        ((success++))
+    else
+        echo "Failed to start Minecraft Server!"
+        log_message "$MANAGER_LOG" "Failed to start Minecraft Server"
+    fi
     
     sleep 5
     
