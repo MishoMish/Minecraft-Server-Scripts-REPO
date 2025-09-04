@@ -6,8 +6,8 @@
 # Base directory where scripts are located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Server directory (next to scripts folder)
-SERVER_DIR="$(dirname "$SCRIPT_DIR")/SERVER"
+# Server directory (absolute path)
+SERVER_DIR="/root/SERVER"
 
 # Logs directory
 LOG_DIR="$SCRIPT_DIR/logs"
