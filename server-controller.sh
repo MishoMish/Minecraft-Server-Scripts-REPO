@@ -148,18 +148,9 @@ start_server() {
     log_message "$SERVER_LOG" "Starting Minecraft server..."
     echo "Starting Minecraft server..."
     
-    # Start server in screen session
+    # Start server in screen session  
     cd "$SERVER_DIR" || return 1
-    screen -dmS "$SERVER_SCREEN" bash -c "
-        echo 'Starting Minecraft Server...'
-        echo 'Server Directory: $SERVER_DIR'
-        echo 'JAR File: $JAR_NAME'
-        echo 'RAM: $MIN_RAM to $MAX_RAM'
-        echo '=========================='
-        java -Xms$MIN_RAM -Xmx$MAX_RAM $JAVA_OPTS -jar '$JAR_NAME' nogui
-        echo 'Server process ended. Press any key to close this screen...'
-        read
-    "
+    screen -dmS "$SERVER_SCREEN" java -Xms$MIN_RAM -Xmx$MAX_RAM $JAVA_OPTS -jar "$JAR_NAME" nogui
     
     # Wait for server to start
     if wait_for_server_start; then
