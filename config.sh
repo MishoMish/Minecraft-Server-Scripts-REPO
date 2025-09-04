@@ -52,11 +52,11 @@ MAX_CPU_PERCENT=95
 MIN_FREE_DISK_GB=5
 
 # ================= Backup Configuration =================
-# Automatic backup interval in seconds (default: 6 hours = 21600 seconds)
-BACKUP_INTERVAL=21600
+# Automatic backup interval in seconds (12 hours = 43200 seconds)
+BACKUP_INTERVAL=43200
 
-# Number of backups to keep
-BACKUP_RETENTION=7
+# Number of backups to keep (last 2 backups)
+BACKUP_RETENTION=2
 
 # ================= Logging Configuration =================
 # Log file names
