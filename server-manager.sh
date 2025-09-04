@@ -104,18 +104,10 @@ start_component() {
     fi
     
     echo "Starting $component..."
-    screen -dmS "$screen_name" bash -c "
-        echo 'Starting $component...'
-        echo 'Screen: $screen_name'
-        echo 'Script: $script_path'
-        echo 'Args: $args'
-        echo '======================='
-        cd '$SCRIPT_DIR'
-        '$script_path' $args
-        echo ''
-        echo '$component has stopped. Press any key to close this screen...'
-        read
-    "
+    
+    # Start the component directly in screen (no bash wrapper)
+    cd "$SCRIPT_DIR" || return 1
+    screen -dmS "$screen_name" "$script_path" $args
     
     sleep 2
     if screen_exists "$screen_name"; then
