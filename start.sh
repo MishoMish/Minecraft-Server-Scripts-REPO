@@ -3,7 +3,9 @@
 
 # ================= Configuration =================
 # Default values (you can override with command-line options)
-SERVER_DIR="$HOME/SERVER"
+# Auto-detect paths relative to this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SERVER_DIR="$(dirname "$SCRIPT_DIR")/SERVER"  # SERVER folder next to scripts folder
 JAR_NAME="fabric.jar"
 MIN_RAM="6G"
 MAX_RAM="8G"
